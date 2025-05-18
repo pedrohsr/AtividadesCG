@@ -34,8 +34,6 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(stb_image)
 
-find_package(GLEW REQUIRED)
-
 # Adiciona as pastas de cabeçalhos
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/common)

@@ -1,5 +1,5 @@
 #include "Obj.hpp"
-#include <GL/glew.h>
+#include "glad/glad.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -10,11 +10,10 @@ Obj::Obj(const std::string& filename)
     , scale(1.0f)
     , VAO(0)
     , VBO(0)
-    , EBO(0) {
+    , numVertices(0) {
     if (!loadFromFile(filename)) {
         std::cerr << "Failed to load model: " << filename << std::endl;
     }
-    setupBuffers();
 }
 
 Obj::~Obj() {
@@ -24,13 +23,12 @@ Obj::~Obj() {
 void Obj::cleanup() {
     if (VAO != 0) glDeleteVertexArrays(1, &VAO);
     if (VBO != 0) glDeleteBuffers(1, &VBO);
-    if (EBO != 0) glDeleteBuffers(1, &EBO);
 }
 
 bool Obj::loadFromFile(const std::string& filename) {
     std::vector<glm::vec3> temp_vertices;
     std::vector<glm::vec3> temp_normals;
-    std::vector<unsigned int> vertexIndices, normalIndices;
+    std::vector<float> vBuffer;
 
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -58,91 +56,57 @@ bool Obj::loadFromFile(const std::string& filename) {
             std::string vertex1, vertex2, vertex3;
             iss >> vertex1 >> vertex2 >> vertex3;
 
-            std::replace(vertex1.begin(), vertex1.end(), '/', ' ');
-            std::replace(vertex2.begin(), vertex2.end(), '/', ' ');
-            std::replace(vertex3.begin(), vertex3.end(), '/', ' ');
+            std::string vertices[3] = {vertex1, vertex2, vertex3};
+            for (const auto& vertex : vertices) {
+                std::istringstream ss(vertex);
+                std::string index;
+                int vi = 0, ni = 0;
 
-            std::istringstream v1(vertex1), v2(vertex2), v3(vertex3);
-            unsigned int vertexIndex, normalIndex;
+                if (std::getline(ss, index, '/')) {
+                    vi = !index.empty() ? std::stoi(index) - 1 : 0;
+                }
 
-            v1 >> vertexIndex;
-            vertexIndices.push_back(vertexIndex - 1);
-            v1 >> normalIndex;
-            v1 >> normalIndex;
-            normalIndices.push_back(normalIndex - 1);
+                std::getline(ss, index, '/');
 
-            v2 >> vertexIndex;
-            vertexIndices.push_back(vertexIndex - 1);
-            v2 >> normalIndex;
-            v2 >> normalIndex;
-            normalIndices.push_back(normalIndex - 1);
+                if (std::getline(ss, index)) {
+                    ni = !index.empty() ? std::stoi(index) - 1 : 0;
+                }
 
-            v3 >> vertexIndex;
-            vertexIndices.push_back(vertexIndex - 1);
-            v3 >> normalIndex;
-            v3 >> normalIndex;
-            normalIndices.push_back(normalIndex - 1);
+                vBuffer.push_back(temp_vertices[vi].x);
+                vBuffer.push_back(temp_vertices[vi].y);
+                vBuffer.push_back(temp_vertices[vi].z);
+
+                vBuffer.push_back(temp_normals[ni].x);
+                vBuffer.push_back(temp_normals[ni].y);
+                vBuffer.push_back(temp_normals[ni].z);
+            }
         }
     }
 
-    vertices.clear();
-    normals.clear();
-    indices = vertexIndices;
-
-    for (unsigned int i = 0; i < vertexIndices.size(); i++) {
-        glm::vec3 vertex = temp_vertices[vertexIndices[i]];
-        glm::vec3 normal = temp_normals[normalIndices[i]];
-        
-        vertices.push_back(vertex.x);
-        vertices.push_back(vertex.y);
-        vertices.push_back(vertex.z);
-        
-        normals.push_back(normal.x);
-        normals.push_back(normal.y);
-        normals.push_back(normal.z);
+    if (vBuffer.empty()) {
+        std::cerr << "Error: No valid faces found in file: " << filename << std::endl;
+        return false;
     }
 
-    return true;
-}
+    numVertices = vBuffer.size() / 6;
 
-void Obj::setupBuffers() {
     glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
     glBindVertexArray(VAO);
 
+    glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, 
-                 vertices.size() * sizeof(float) + normals.size() * sizeof(float),
-                 nullptr, 
-                 GL_STATIC_DRAW);
-    
-    glBufferSubData(GL_ARRAY_BUFFER, 
-                    0, 
-                    vertices.size() * sizeof(float), 
-                    vertices.data());
-    
-    glBufferSubData(GL_ARRAY_BUFFER, 
-                    vertices.size() * sizeof(float),
-                    normals.size() * sizeof(float),
-                    normals.data());
+    glBufferData(GL_ARRAY_BUFFER, vBuffer.size() * sizeof(float), vBuffer.data(), GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
-                 indices.size() * sizeof(unsigned int),
-                 indices.data(),
-                 GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 
-                         (void*)(vertices.size() * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+
+    return true;
 }
 
 void Obj::translate(const glm::vec3& translation) {
@@ -169,6 +133,6 @@ glm::mat4 Obj::getModelMatrix() const {
 
 void Obj::draw() const {
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, numVertices);
     glBindVertexArray(0);
 } 
