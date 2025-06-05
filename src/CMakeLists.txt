@@ -1,6 +1,7 @@
 # Lista de exemplos/exercícios podem ser colocados aqui também
 set(EXECS
     Hello3D
+    CubeViewer
     TriangleTex
     SpherePhong
     modelLoader
