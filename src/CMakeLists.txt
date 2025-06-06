@@ -9,6 +9,7 @@ set(DOMAIN_EXECS
     TexturedViewer
     PhongViewer
     ModelLoader
+    ThreePointLighting
 )
 
 foreach(EXEC ${EXECS})

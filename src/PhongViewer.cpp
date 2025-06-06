@@ -33,7 +33,6 @@ enum TransformMode
 TransformMode currentMode = TRANSLATE;
 
 bool wireframeMode = false;
-bool showNormals = false;
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -83,21 +82,6 @@ void processInput(GLFWwindow *window)
     else
     {
         wKeyPressed = false;
-    }
-
-    static bool nKeyPressed = false;
-    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
-    {
-        if (!nKeyPressed)
-        {
-            showNormals = !showNormals;
-            std::cout << "Show normals: " << (showNormals ? "ON" : "OFF") << std::endl;
-            nKeyPressed = true;
-        }
-    }
-    else
-    {
-        nKeyPressed = false;
     }
 
     float lightSpeed = 15.0f * deltaTime;
@@ -180,7 +164,6 @@ void printUsage(const char *programName)
     std::cout << "- R: Rotation mode (use X, Y, Z keys)" << std::endl;
     std::cout << "- G: Scale mode (use Up/Down arrows)" << std::endl;
     std::cout << "- W: Toggle wireframe mode" << std::endl;
-    std::cout << "- N: Toggle normal visualization" << std::endl;
     std::cout << "Light Controls (Continuous):" << std::endl;
     std::cout << "- Numpad 4/6: Move light left/right" << std::endl;
     std::cout << "- Numpad 2/8: Move light down/up" << std::endl;
