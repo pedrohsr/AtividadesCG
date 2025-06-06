@@ -5,7 +5,7 @@ set(EXECS
     TexturedViewer
     TriangleTex
     SpherePhong
-    modelLoader
+    ModelLoader
 )
 
 # Cria os executáveis

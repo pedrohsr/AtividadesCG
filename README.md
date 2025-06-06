@@ -1,4 +1,5 @@
 # Autor: Pedro Henrique Soares Rodrigues
+
 # Model Loader
 
 Um visualizador de modelos 3D em formato OBJ que permite manipular múltiplos objetos simultaneamente.
@@ -25,7 +26,7 @@ make
 O programa aceita um ou mais arquivos OBJ como argumentos:
 
 ```bash
-./src/modelLoader <modelo1.obj> [modelo2.obj] [modelo3.obj] ...
+./src/ModelLoader <modelo1.obj> [modelo2.obj] [modelo3.obj] ...
 ```
 
 ### Controles
@@ -47,5 +48,5 @@ O programa aceita um ou mais arquivos OBJ como argumentos:
 ### Exemplo
 
 ```bash
-./src/modelLoader assets/Modelos3D/Suzanne.obj assets/Modelos3D/Cube.obj
+./src/ModelLoader assets/Modelos3D/Suzanne.obj assets/Modelos3D/Cube.obj
 ```

@@ -1,6 +1,6 @@
 set(VIEWERS
     TexturedViewer
-    modelLoader
+    ModelLoader
     )
 
 foreach(EXEC ${VIEWERS})
