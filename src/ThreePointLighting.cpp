@@ -129,21 +129,6 @@ void processInput(GLFWwindow *window)
         wKeyPressed = false;
     }
 
-    static bool lKeyPressed = false;
-    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-    {
-        if (!lKeyPressed)
-        {
-            showLightPositions = !showLightPositions;
-            std::cout << "Light positions: " << (showLightPositions ? "ON" : "OFF") << std::endl;
-            lKeyPressed = true;
-        }
-    }
-    else
-    {
-        lKeyPressed = false;
-    }
-
     static bool key1Pressed = false, key2Pressed = false, key3Pressed = false;
 
     if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
@@ -290,7 +275,6 @@ void printUsage(const char *programName)
     std::cout << "- R: Rotation mode (X, Y, Z keys)" << std::endl;
     std::cout << "- G: Scale mode (Up/Down arrows)" << std::endl;
     std::cout << "- W: Toggle wireframe mode" << std::endl;
-    std::cout << "- L: Toggle light position display" << std::endl;
     std::cout << "Three Point Light Controls:" << std::endl;
     std::cout << "- 1: Toggle Key Light (main light)" << std::endl;
     std::cout << "- 2: Toggle Fill Light (shadow softener)" << std::endl;

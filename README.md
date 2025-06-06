@@ -93,6 +93,11 @@ O programa aceita um ou mais arquivos OBJ como argumentos:
   - Seta para cima: Aumentar escala
   - Seta para baixo: Diminuir escala
 - **W**: Alternar modo wireframe
+- Controle dos 3 pontos de luz:
+  - 1: Ligar/desligar Luz principal
+  - 2: Ligar/desligar Luz de preenchimento
+  - 3: Ligar/desligar Luz de fundo
+
 - **ESC**: Sair
 
 ### Exemplo
