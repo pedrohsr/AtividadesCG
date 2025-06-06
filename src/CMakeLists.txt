@@ -2,6 +2,7 @@
 set(EXECS
     Hello3D
     CubeViewer
+    TexturedViewer
     TriangleTex
     SpherePhong
     modelLoader
