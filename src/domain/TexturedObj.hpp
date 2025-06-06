@@ -56,6 +56,9 @@ public:
     bool hasTextures() const;
 
     void drawWithTextures() const;
+
+    Material getMaterial() const;
+    bool hasMaterials() const;
 };
 
 #endif

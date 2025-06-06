@@ -10,6 +10,7 @@
 TexturedObj::TexturedObj(const std::string &filename)
     : Obj(filename), texturedVAO(0), texturedVBO(0)
 {
+    std::cout << "TexturedObj constructor called with: " << filename << std::endl;
 
     if (loadTexturedOBJ(filename))
     {
@@ -112,6 +113,12 @@ bool TexturedObj::loadTexturedOBJ(const std::string &path)
     }
 
     file.close();
+
+    std::cout << "Loaded OBJ: " << vertices.size() << " vertices, "
+              << texCoords.size() << " texture coords, "
+              << normals.size() << " normals, "
+              << faces.size() << " faces" << std::endl;
+
     return !vertices.empty() && !faces.empty();
 }
 
@@ -229,19 +236,19 @@ void TexturedObj::setupTexturedMesh()
     {
         TextureVertex v1;
         v1.position = (face.v1 < vertices.size()) ? vertices[face.v1] : glm::vec3(0.0f);
-        v1.texCoord = (face.vt1 < texCoords.size()) ? texCoords[face.vt1] : glm::vec2(0.0f);
+        v1.texCoord = (face.vt1 < texCoords.size()) ? glm::vec2(texCoords[face.vt1].x, 1.0f - texCoords[face.vt1].y) : glm::vec2(0.0f);
         v1.normal = (face.vn1 < normals.size()) ? normals[face.vn1] : glm::vec3(0.0f, 1.0f, 0.0f);
         processedVertices.push_back(v1);
 
         TextureVertex v2;
         v2.position = (face.v2 < vertices.size()) ? vertices[face.v2] : glm::vec3(0.0f);
-        v2.texCoord = (face.vt2 < texCoords.size()) ? texCoords[face.vt2] : glm::vec2(0.0f);
+        v2.texCoord = (face.vt2 < texCoords.size()) ? glm::vec2(texCoords[face.vt2].x, 1.0f - texCoords[face.vt2].y) : glm::vec2(0.0f);
         v2.normal = (face.vn2 < normals.size()) ? normals[face.vn2] : glm::vec3(0.0f, 1.0f, 0.0f);
         processedVertices.push_back(v2);
 
         TextureVertex v3;
         v3.position = (face.v3 < vertices.size()) ? vertices[face.v3] : glm::vec3(0.0f);
-        v3.texCoord = (face.vt3 < texCoords.size()) ? texCoords[face.vt3] : glm::vec2(0.0f);
+        v3.texCoord = (face.vt3 < texCoords.size()) ? glm::vec2(texCoords[face.vt3].x, 1.0f - texCoords[face.vt3].y) : glm::vec2(0.0f);
         v3.normal = (face.vn3 < normals.size()) ? normals[face.vn3] : glm::vec3(0.0f, 1.0f, 0.0f);
         processedVertices.push_back(v3);
     }
@@ -318,4 +325,25 @@ void TexturedObj::drawWithTextures() const
     {
         Obj::draw();
     }
+}
+
+Material TexturedObj::getMaterial() const
+{
+    if (!materials.empty())
+    {
+        return materials.begin()->second;
+    }
+
+    Material defaultMaterial;
+    defaultMaterial.name = "default";
+    defaultMaterial.ambient = glm::vec3(0.2f);
+    defaultMaterial.diffuse = glm::vec3(0.8f);
+    defaultMaterial.specular = glm::vec3(0.5f);
+    defaultMaterial.shininess = 32.0f;
+    return defaultMaterial;
+}
+
+bool TexturedObj::hasMaterials() const
+{
+    return !materials.empty();
 }

@@ -236,11 +236,23 @@ int main(int argc, char *argv[])
 
             if (objects[i]->hasTextures())
             {
+                Material material = objects[i]->getMaterial();
+                texturedShader.setVec3("material.ambient", material.ambient);
+                texturedShader.setVec3("material.diffuse", material.diffuse);
+                texturedShader.setVec3("material.specular", material.specular);
+                texturedShader.setFloat("material.shininess", material.shininess);
+                texturedShader.setBool("useTexture", true);
+
                 objects[i]->drawTextured(texturedShader.ID);
             }
             else
             {
                 texturedShader.setBool("useTexture", false);
+                texturedShader.setVec3("material.ambient", glm::vec3(0.1f));
+                texturedShader.setVec3("material.diffuse", glm::vec3(0.6f));
+                texturedShader.setVec3("material.specular", glm::vec3(0.3f));
+                texturedShader.setFloat("material.shininess", 16.0f);
+
                 objects[i]->drawWithTextures();
             }
 
@@ -248,6 +260,7 @@ int main(int argc, char *argv[])
             {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 texturedShader.setBool("useTexture", false);
+                texturedShader.setVec3("objectColor", glm::vec3(1.0f, 0.0f, 0.0f));
                 objects[i]->drawWithTextures();
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }

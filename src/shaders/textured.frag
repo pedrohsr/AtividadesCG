@@ -5,7 +5,16 @@ in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoord;
 
+// Material properties structure
+struct Material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+};
+
 uniform sampler2D texture_diffuse1;
+uniform Material material;
 uniform vec3 lightPos;
 uniform vec3 lightColor;
 uniform vec3 viewPos;
@@ -14,32 +23,22 @@ uniform vec3 objectColor;
 
 void main()
 {
-    // Ambient
-    float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * lightColor;
-    
-    // Diffuse
-    vec3 norm = normalize(Normal);
-    vec3 lightColor_local = vec3(1.0, 1.0, 1.0);
-    vec3 lightPos_local = vec3(5.0, 5.0, 5.0);
-    vec3 lightDir = normalize(lightPos_local - FragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor_local;
-    
-    // Specular
-    float specularStrength = 0.5;
-    vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = specularStrength * spec * lightColor_local;
-    
-    vec3 result;
     if (useTexture) {
+        // Simple texture display to verify texture mapping
         vec3 texColor = texture(texture_diffuse1, TexCoord).rgb;
-        result = (ambient + diffuse + specular) * texColor;
+        
+        // Basic lighting calculation
+        vec3 norm = normalize(Normal);
+        vec3 lightDir = normalize(vec3(5.0, 5.0, 5.0) - FragPos);
+        float diff = max(dot(norm, lightDir), 0.0);
+        
+        // Combine texture with simple lighting
+        vec3 ambient = 0.3 * texColor;
+        vec3 diffuse = diff * texColor;
+        
+        FragColor = vec4(ambient + diffuse, 1.0);
     } else {
-        result = (ambient + diffuse + specular) * objectColor;
+        // Fallback for non-textured objects
+        FragColor = vec4(objectColor, 1.0);
     }
-    
-    FragColor = vec4(result, 1.0);
 } 
