@@ -37,13 +37,14 @@ struct ThreePointLights
 
     ThreePointLights()
     {
-        keyColor = glm::vec3(1.0f, 1.0f, 0.9f);
-        fillColor = glm::vec3(0.8f, 0.9f, 1.0f);
-        backColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        keyColor = glm::vec3(1.0f, 0.95f, 0.8f);
+        keyIntensity = 1.2f;
 
-        keyIntensity = 1.0f;
-        fillIntensity = 0.3f;
-        backIntensity = 0.4f;
+        fillColor = glm::vec3(0.7f, 0.8f, 1.0f);
+        fillIntensity = 0.4f;
+
+        backColor = glm::vec3(1.0f, 1.0f, 0.95f);
+        backIntensity = 0.6f;
 
         keyEnabled = true;
         fillEnabled = true;
@@ -52,13 +53,33 @@ struct ThreePointLights
 
     void setupLights(glm::vec3 objectPos, float objectScale)
     {
-        float distance = objectScale * 4.0f;
+        float baseDistance = objectScale * 6.0f;
 
-        keyPos = objectPos + glm::vec3(distance * 0.7f, distance * 0.7f, distance * 0.7f);
+        float keyAngleH = glm::radians(30.0f);
+        float keyAngleV = glm::radians(45.0f);
 
-        fillPos = objectPos + glm::vec3(-distance * 0.5f, distance * 0.3f, distance * 0.5f);
+        keyPos = objectPos + glm::vec3(
+                                 baseDistance * sin(keyAngleH) * cos(keyAngleV),
+                                 baseDistance * sin(keyAngleV),
+                                 baseDistance * cos(keyAngleH) * cos(keyAngleV));
 
-        backPos = objectPos + glm::vec3(0.0f, distance * 0.5f, -distance * 0.8f);
+        float fillAngleH = glm::radians(-45.0f);
+        float fillAngleV = glm::radians(15.0f);
+        float fillDistance = baseDistance * 0.8f;
+
+        fillPos = objectPos + glm::vec3(
+                                  fillDistance * sin(fillAngleH) * cos(fillAngleV),
+                                  fillDistance * sin(fillAngleV),
+                                  fillDistance * cos(fillAngleH) * cos(fillAngleV));
+
+        float backAngleH = glm::radians(180.0f);
+        float backAngleV = glm::radians(30.0f);
+        float backDistance = baseDistance * 0.9f;
+
+        backPos = objectPos + glm::vec3(
+                                  backDistance * sin(backAngleH) * cos(backAngleV),
+                                  backDistance * sin(backAngleV),
+                                  backDistance * cos(backAngleH) * cos(backAngleV));
     }
 };
 
@@ -173,6 +194,21 @@ void processInput(GLFWwindow *window)
         key3Pressed = false;
     }
 
+    static bool lKeyPressed = false;
+    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+    {
+        if (!lKeyPressed)
+        {
+            showLightPositions = !showLightPositions;
+            std::cout << "Light Position Debug: " << (showLightPositions ? "ON" : "OFF") << std::endl;
+            lKeyPressed = true;
+        }
+    }
+    else
+    {
+        lKeyPressed = false;
+    }
+
     float speed = 2.5f * deltaTime;
     if (selectedObject >= 0 && selectedObject < objects.size())
     {
@@ -258,7 +294,14 @@ void updateLightPositions()
 
         if (showLightPositions)
         {
-            std::cout << "Lights updated for object at (" << objectPos.x << ", " << objectPos.y << ", " << objectPos.z << ")" << std::endl;
+            std::cout << "\n=== Light Positions Update ===" << std::endl;
+            std::cout << "Object position: (" << objectPos.x << ", " << objectPos.y << ", " << objectPos.z << ")" << std::endl;
+            std::cout << "Object max scale: " << maxScale << std::endl;
+            std::cout << "Key Light pos: (" << lights.keyPos.x << ", " << lights.keyPos.y << ", " << lights.keyPos.z << ")" << std::endl;
+            std::cout << "Fill Light pos: (" << lights.fillPos.x << ", " << lights.fillPos.y << ", " << lights.fillPos.z << ")" << std::endl;
+            std::cout << "Back Light pos: (" << lights.backPos.x << ", " << lights.backPos.y << ", " << lights.backPos.z << ")" << std::endl;
+            std::cout << "============================\n"
+                      << std::endl;
         }
     }
 }
@@ -279,6 +322,7 @@ void printUsage(const char *programName)
     std::cout << "- 1: Toggle Key Light (main light)" << std::endl;
     std::cout << "- 2: Toggle Fill Light (shadow softener)" << std::endl;
     std::cout << "- 3: Toggle Back Light (background separator)" << std::endl;
+    std::cout << "- L: Toggle Light Position Debug" << std::endl;
     std::cout << "- ESC: Exit" << std::endl;
     std::cout << "====================================" << std::endl;
 }
