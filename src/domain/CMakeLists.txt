@@ -5,6 +5,8 @@ add_library(domain
     Shader.cpp
     TexturedObj.hpp
     TexturedObj.cpp
+    Camera.hpp
+    Camera.cpp
 )
 
 target_include_directories(domain PUBLIC 

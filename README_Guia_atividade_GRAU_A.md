@@ -36,4 +36,12 @@ cd ..
 
 ## Tarefa - Adicionando uma câmera em primeira pessoa
 
+```bash
+./build/src/CameraViewer
+```
+
 ## Tarefa - Definindo trajetórias para alguns objetos
+
+```bash
+./build/src/TrajectoryViewer ./assets/Modelos3D/Cube.obj
+```

@@ -10,6 +10,8 @@ set(DOMAIN_EXECS
     PhongViewer
     ModelLoader
     ThreePointLighting
+    CameraViewer
+    TrajectoryViewer
 )
 
 foreach(EXEC ${EXECS})
