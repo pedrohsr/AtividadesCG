@@ -19,6 +19,7 @@ mkdir build
 cd build
 cmake ..
 make
+cd ..
 ```
 
 ## Uso
@@ -26,7 +27,7 @@ make
 O programa aceita um ou mais arquivos OBJ como argumentos:
 
 ```bash
-./src/ModelLoader <modelo1.obj> [modelo2.obj] [modelo3.obj] ...
+./build/src/ModelLoader <modelo1.obj> [modelo2.obj] [modelo3.obj] ...
 ```
 
 ### Controles
@@ -48,7 +49,7 @@ O programa aceita um ou mais arquivos OBJ como argumentos:
 ### Exemplo
 
 ```bash
-./src/ModelLoader assets/Modelos3D/Suzanne.obj assets/Modelos3D/Cube.obj
+./build/src/ModelLoader ./assets/Modelos3D/Suzanne.obj ./assets/Modelos3D/Cube.obj
 ```
 
 # Three Point Lighting
@@ -65,19 +66,21 @@ Um visualizador de modelos 3D em formato OBJ com três pontos de luz
 
 ## Compilação
 
-````bash
+```bash
 mkdir build
 cd build
 cmake ..
 make
+cd ..
+```
 
 ## Uso
 
 O programa aceita um ou mais arquivos OBJ como argumentos:
 
 ```bash
-./src/ThreePointLighting <modelo1.obj> [modelo2.obj] [modelo3.obj] ...
-````
+./build/src/ThreePointLighting <modelo1.obj> [modelo2.obj] [modelo3.obj] ...
+```
 
 ### Controles
 
@@ -94,6 +97,7 @@ O programa aceita um ou mais arquivos OBJ como argumentos:
   - Seta para baixo: Diminuir escala
 - **W**: Alternar modo wireframe
 - Controle dos 3 pontos de luz:
+
   - 1: Ligar/desligar Luz principal
   - 2: Ligar/desligar Luz de preenchimento
   - 3: Ligar/desligar Luz de fundo
@@ -103,5 +107,5 @@ O programa aceita um ou mais arquivos OBJ como argumentos:
 ### Exemplo
 
 ```bash
-./src/ThreePointLighting assets/Modelos3D/Suzanne.obj
+./build/src/ThreePointLighting ./assets/Modelos3D/Suzanne.obj
 ```
