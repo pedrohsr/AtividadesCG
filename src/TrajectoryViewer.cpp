@@ -111,7 +111,7 @@ void processInput(GLFWwindow *window)
         tabPressed = false;
     }
 
-    if (selectedObject >= 0 && selectedObject < objects.size())
+    if (!objects.empty() && selectedObject >= 0 && selectedObject < objects.size())
     {
         static bool cPressed = false;
         if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
@@ -134,7 +134,7 @@ void processInput(GLFWwindow *window)
             if (!xPressed)
             {
                 objects[selectedObject].trajectory.clear();
-                std::cout << "Cleared trajectory" << std::endl;
+                std::cout << "Cleared trajectory for object " << selectedObject << std::endl;
                 xPressed = true;
             }
         }
@@ -149,7 +149,7 @@ void processInput(GLFWwindow *window)
             if (!mPressed)
             {
                 objects[selectedObject].isMoving = !objects[selectedObject].isMoving;
-                std::cout << (objects[selectedObject].isMoving ? "Started movement" : "Stopped movement") << std::endl;
+                std::cout << "Object " << selectedObject << (objects[selectedObject].isMoving ? " started" : " stopped") << " movement" << std::endl;
                 mPressed = true;
             }
         }
@@ -166,7 +166,6 @@ void processInput(GLFWwindow *window)
                 glm::mat4 modelMatrix = objects[selectedObject].obj->getModelMatrix();
                 glm::vec3 currentPos(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
                 objects[selectedObject].trajectory.addPoint(currentPos);
-                std::cout << "Added control point at: " << currentPos.x << ", " << currentPos.y << ", " << currentPos.z << std::endl;
                 spacePressed = true;
             }
         }
@@ -174,6 +173,97 @@ void processInput(GLFWwindow *window)
         {
             spacePressed = false;
         }
+
+        static bool f1Pressed = false;
+        if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS)
+        {
+            if (!f1Pressed)
+            {
+                std::string filename = "trajectory_" + std::to_string(selectedObject) + ".txt";
+                objects[selectedObject].trajectory.saveToFile(filename);
+                f1Pressed = true;
+            }
+        }
+        else
+        {
+            f1Pressed = false;
+        }
+
+        static bool f2Pressed = false;
+        if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS)
+        {
+            if (!f2Pressed)
+            {
+                std::string filename = "trajectory_" + std::to_string(selectedObject) + ".txt";
+                objects[selectedObject].trajectory.loadFromFile(filename);
+                f2Pressed = true;
+            }
+        }
+        else
+        {
+            f2Pressed = false;
+        }
+
+        static bool iPressed = false;
+        if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+        {
+            if (!iPressed)
+            {
+                std::cout << "=== Trajectory Info for Object " << selectedObject << " ===" << std::endl;
+                objects[selectedObject].trajectory.printInfo();
+                std::cout << "Movement: " << (objects[selectedObject].isMoving ? "ON" : "OFF") << std::endl;
+                std::cout << "=====================================" << std::endl;
+                iPressed = true;
+            }
+        }
+        else
+        {
+            iPressed = false;
+        }
+
+        static bool plusPressed = false;
+        if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS)
+        {
+            if (!plusPressed)
+            {
+                float currentSpeed = objects[selectedObject].trajectory.getSpeed();
+                objects[selectedObject].trajectory.setSpeed(currentSpeed + 0.5f);
+                plusPressed = true;
+            }
+        }
+        else
+        {
+            plusPressed = false;
+        }
+
+        static bool minusPressed = false;
+        if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS)
+        {
+            if (!minusPressed)
+            {
+                float currentSpeed = objects[selectedObject].trajectory.getSpeed();
+                objects[selectedObject].trajectory.setSpeed(std::max(0.1f, currentSpeed - 0.5f));
+                minusPressed = true;
+            }
+        }
+        else
+        {
+            minusPressed = false;
+        }
+
+        float moveSpeed = 2.0f * deltaTime;
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+            objects[selectedObject].obj->translate(glm::vec3(0.0f, moveSpeed, 0.0f));
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+            objects[selectedObject].obj->translate(glm::vec3(0.0f, -moveSpeed, 0.0f));
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+            objects[selectedObject].obj->translate(glm::vec3(-moveSpeed, 0.0f, 0.0f));
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+            objects[selectedObject].obj->translate(glm::vec3(moveSpeed, 0.0f, 0.0f));
+        if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
+            objects[selectedObject].obj->translate(glm::vec3(0.0f, 0.0f, -moveSpeed));
+        if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
+            objects[selectedObject].obj->translate(glm::vec3(0.0f, 0.0f, moveSpeed));
     }
 }
 
@@ -181,14 +271,21 @@ void printUsage(const char *programName)
 {
     std::cout << "=== TRAJECTORY VIEWER ===" << std::endl;
     std::cout << "Usage: " << programName << " <model1.obj> [model2.obj] [model3.obj] ..." << std::endl;
+    std::cout << "Tutorial: Press C, move object, press Space, press C, press M" << std::endl;
     std::cout << "Controls:" << std::endl;
     std::cout << "- WASD: Move camera" << std::endl;
     std::cout << "- Mouse: Look around" << std::endl;
     std::cout << "- TAB: Switch between objects" << std::endl;
-    std::cout << "- C: Toggle adding control points" << std::endl;
-    std::cout << "- SPACE: Add control point at current position" << std::endl;
-    std::cout << "- X: Clear trajectory" << std::endl;
-    std::cout << "- M: Toggle object movement" << std::endl;
+    std::cout << "- C: Toggle adding control points mode" << std::endl;
+    std::cout << "- SPACE: Add control point at current position (when in adding mode)" << std::endl;
+    std::cout << "- X: Clear trajectory of selected object" << std::endl;
+    std::cout << "- M: Toggle object movement along trajectory" << std::endl;
+    std::cout << "- Arrow keys: Move selected object manually" << std::endl;
+    std::cout << "- Page Up/Down: Move selected object forward/backward" << std::endl;
+    std::cout << "- F1: Save trajectory to file" << std::endl;
+    std::cout << "- F2: Load trajectory from file" << std::endl;
+    std::cout << "- I: Show trajectory info" << std::endl;
+    std::cout << "- +/-: Adjust movement speed" << std::endl;
     std::cout << "- ESC: Exit" << std::endl;
     std::cout << "========================" << std::endl;
 }
