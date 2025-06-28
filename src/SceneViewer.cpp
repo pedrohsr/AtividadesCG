@@ -40,6 +40,7 @@ struct SceneObject {
     Trajectory trajectory;
     bool isMoving;
     std::string name;
+    std::string file;
     glm::vec3 initialPosition;
     glm::vec3 initialRotation;
     glm::vec3 initialScale;
@@ -141,14 +142,14 @@ void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
         currentMode = SCALE;
 
-    static bool wKeyPressed = false;
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        if (!wKeyPressed) {
+    static bool fKeyPressed = false;
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+        if (!fKeyPressed) {
             wireframeMode = !wireframeMode;
-            wKeyPressed = true;
+            fKeyPressed = true;
         }
     } else {
-        wKeyPressed = false;
+        fKeyPressed = false;
     }
 
     static bool vKeyPressed = false;
@@ -314,6 +315,7 @@ void printUsage(const char* programName) {
     std::cout << "Object Controls:" << std::endl;
     std::cout << "- TAB: Switch between objects" << std::endl;
     std::cout << "- T/R/G: Translation/Rotation/Scale mode" << std::endl;
+    std::cout << "- Z/X/Y: Rotate selected object" << std::endl;
     std::cout << "- Arrow keys: Transform selected object" << std::endl;
     std::cout << "- Page Up/Down: Move object forward/backward" << std::endl;
     std::cout << "- C: Toggle control point adding mode" << std::endl;
@@ -330,7 +332,7 @@ void printUsage(const char* programName) {
     std::cout << "- Numpad +/-: Adjust light intensity" << std::endl;
     std::cout << std::endl;
     std::cout << "Display Controls:" << std::endl;
-    std::cout << "- W: Toggle wireframe mode" << std::endl;
+    std::cout << "- F: Toggle wireframe mode" << std::endl;
     std::cout << "- V: Toggle trajectory visualization" << std::endl;
     std::cout << std::endl;
     std::cout << "File Operations:" << std::endl;
@@ -343,7 +345,7 @@ void printUsage(const char* programName) {
 bool loadSceneConfig(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        std::cout << "No scene config found, using default scene" << std::endl;
+        std::cout << "No scene config found, scene not loaded" << std::endl;
         return false;
     }
 
@@ -421,7 +423,7 @@ bool loadSceneConfig(const std::string& filename) {
                     glm::vec3 initialScale = objData.contains("scale") ? 
                         glm::vec3(objData["scale"][0], objData["scale"][1], objData["scale"][2]) : glm::vec3(1.0f);
 
-                    SceneObject sceneObj = {obj, Trajectory(), false, objName, initialPos, initialRot, initialScale};
+                    SceneObject sceneObj = {obj, Trajectory(), false, objName, objFile, initialPos, initialRot, initialScale};
                     
                     if (objData.contains("trajectory")) {
                         auto trajData = objData["trajectory"];
@@ -475,7 +477,7 @@ void saveSceneConfig(const std::string& filename) {
         for (const auto& obj : sceneObjects) {
             json objData;
             objData["name"] = obj.name;
-            objData["file"] = obj.name + ".obj"; // Assuming .obj extension
+            objData["file"] = obj.file;
             
             glm::mat4 modelMatrix = obj.obj->getModelMatrix();
             glm::vec3 currentPos(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
@@ -505,7 +507,7 @@ void saveSceneConfig(const std::string& filename) {
             return;
         }
 
-        file << sceneData.dump(2); // Pretty print with 2 spaces indentation
+        file << sceneData.dump(2);
         file.close();
         
         std::cout << "Scene configuration saved successfully to: " << filename << std::endl;
@@ -521,15 +523,15 @@ void renderTrajectories(Shader& shader) {
         const auto& points = obj.trajectory.getControlPoints();
         if (points.size() < 2) continue;
 
-        shader.setVec3("objectColor", glm::vec3(1.0f, 0.0f, 1.0f)); // Purple for trajectories
+        shader.setVec3("objectColor", glm::vec3(1.0f, 0.0f, 1.0f));
         
         for (size_t i = 0; i < points.size(); i++) {
             glm::vec3 start = points[i];
-            glm::vec3 end = points[(i + 1) % points.size()]; // Cyclic
+            glm::vec3 end = points[(i + 1) % points.size()];
 
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, start);
-            model = glm::scale(model, glm::vec3(0.1f)); // Small spheres at control points
+            model = glm::scale(model, glm::vec3(0.1f));
             
             shader.setMat4("model", model);
         }
@@ -573,86 +575,19 @@ int main(int argc, char* argv[]) {
     }
 
     if (!configLoaded) {
-        std::cout << "Creating default scene..." << std::endl;
-        
-        camera = Camera(glm::vec3(0.0f, 2.0f, 8.0f));
-        
-        lights.push_back({glm::vec3(2.0f, 4.0f, 6.0f), glm::vec3(1.0f), 1.0f, true});
-        lights.push_back({glm::vec3(-3.0f, 3.0f, 4.0f), glm::vec3(0.8f, 0.6f, 1.0f), 0.7f, true});
-        
-        std::vector<float> cubeVertices = {
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-             0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
-
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-             0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-        };
-
-        std::vector<std::string> objFiles = {
-            "assets/cube.obj", "assets/sphere.obj", "assets/cylinder.obj",
-            "cube.obj", "sphere.obj", "cylinder.obj",
-            "assets/models/cube.obj", "assets/models/sphere.obj"
-        };
-
-        bool objectsLoaded = false;
-        for (const auto& objFile : objFiles) {
-            try {
-                TexturedObj* obj = new TexturedObj(objFile);
-                obj->translate(glm::vec3(-2.0f + sceneObjects.size() * 2.0f, 0.0f, 0.0f));
-                sceneObjects.push_back({obj, Trajectory(), false, "obj" + std::to_string(sceneObjects.size()), 
-                                      glm::vec3(-2.0f + sceneObjects.size() * 2.0f, 0.0f, 0.0f), glm::vec3(0.0f), glm::vec3(1.0f)});
-                objectsLoaded = true;
-                std::cout << "Loaded object from: " << objFile << std::endl;
-                if (sceneObjects.size() >= 3) break; // Limit to 3 objects for default scene
-            } catch (...) {
-            }
-        }
-
-        if (!objectsLoaded) {
-            std::cout << "No OBJ files found. Creating simple default objects..." << std::endl;
-            
-        }
+        std::cerr << "ERROR: No scene configuration found!" << std::endl;
+        std::cerr << "Please provide a scene configuration file:" << std::endl;
+        std::cerr << "  " << argv[0] << " scene_config.json" << std::endl;
+        std::cerr << "Or create a scene_config.json file in the current directory." << std::endl;
+        glfwTerminate();
+        return -1;
     }
 
     if (sceneObjects.empty()) {
-        std::cout << "No objects in scene. Create a scene_config.json file or provide OBJ files." << std::endl;
-        std::cout << "Try running: ./SceneViewer scene_config.json" << std::endl;
+        std::cerr << "ERROR: No objects found in scene configuration!" << std::endl;
+        std::cerr << "Please add objects to your scene_config.json file." << std::endl;
+        glfwTerminate();
+        return -1;
     } else {
         std::cout << "Scene loaded with " << sceneObjects.size() << " objects and " << lights.size() << " lights." << std::endl;
     }
