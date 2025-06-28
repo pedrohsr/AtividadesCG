@@ -16,7 +16,7 @@
         1.0
       ],
       "enabled": true,
-      "intensity": 1.0,
+      "intensity": 0.65,
       "position": [
         5.0,
         8.0,
@@ -30,7 +30,7 @@
         1.0
       ],
       "enabled": true,
-      "intensity": 0.699999988079071,
+      "intensity": 0.45,
       "position": [
         -3.0,
         6.0,
