@@ -176,15 +176,15 @@ void processInput(GLFWwindow* window) {
             mPressed = false;
         }
 
-        static bool xPressed = false;
-        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
-            if (!xPressed) {
+        static bool nPressed = false;
+        if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
+            if (!nPressed) {
                 obj.trajectory.clear();
                 std::cout << "Cleared trajectory for " << obj.name << std::endl;
-                xPressed = true;
+                nPressed = true;
             }
         } else {
-            xPressed = false;
+            nPressed = false;
         }
 
         static bool iPressed = false;
@@ -307,7 +307,7 @@ void printUsage(const char* programName) {
     std::cout << "- Page Up/Down: Move object forward/backward" << std::endl;
     std::cout << "- C: Add trajectory point to selected object" << std::endl;
     std::cout << "- M: Toggle trajectory movement" << std::endl;
-    std::cout << "- X: Clear trajectory" << std::endl;
+    std::cout << "- N: Clear trajectory" << std::endl;
     std::cout << "- I: Change interpolation type (Linear -> Bezier -> Spline)" << std::endl;
     std::cout << std::endl;
     std::cout << "Parametric Curves:" << std::endl;
@@ -389,18 +389,8 @@ bool loadSceneConfig(const std::string& filename) {
                     if (objData.contains("rotation")) {
                         glm::vec3 rot(objData["rotation"][0], objData["rotation"][1], objData["rotation"][2]);
                         std::cout << "Applying rotation to " << objName << ": (" << rot.x << ", " << rot.y << ", " << rot.z << ")" << std::endl;
-                        if (rot.z != 0.0f) {
-                            obj->rotate(rot.z, glm::vec3(0.0f, 0.0f, 1.0f));
-                            std::cout << "  Applied Z rotation: " << rot.z << " degrees" << std::endl;
-                        }
-                        if (rot.y != 0.0f) {
-                            obj->rotate(rot.y, glm::vec3(0.0f, 1.0f, 0.0f));
-                            std::cout << "  Applied Y rotation: " << rot.y << " degrees" << std::endl;
-                        }
-                        if (rot.x != 0.0f) {
-                            obj->rotate(rot.x, glm::vec3(1.0f, 0.0f, 0.0f));
-                            std::cout << "  Applied X rotation: " << rot.x << " degrees" << std::endl;
-                        }
+                        obj->setRotation(rot);
+                        std::cout << "  Set rotation to: (" << rot.x << ", " << rot.y << ", " << rot.z << ") degrees" << std::endl;
                     }
                     
                     if (objData.contains("scale")) {
@@ -477,7 +467,8 @@ void saveSceneConfig(const std::string& filename) {
             glm::vec3 currentPos(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
             objData["position"] = {currentPos.x, currentPos.y, currentPos.z};
             
-            objData["rotation"] = {obj.initialRotation.x, obj.initialRotation.y, obj.initialRotation.z};
+            glm::vec3 currentRotation = obj.obj->getRotation();
+            objData["rotation"] = {currentRotation.x, currentRotation.y, currentRotation.z};
             objData["scale"] = {obj.obj->scale.x, obj.obj->scale.y, obj.obj->scale.z};
 
             const auto& trajPoints = obj.trajectory.getControlPoints();
@@ -615,7 +606,8 @@ int main(int argc, char* argv[]) {
         for (size_t i = 0; i < sceneObjects.size(); i++) {
             const auto& obj = sceneObjects[i];
             
-            phongShader.setMat4("model", obj.obj->getModelMatrix());
+            glm::mat4 modelMatrix = obj.obj->getModelMatrix();
+            phongShader.setMat4("model", modelMatrix);
             phongShader.setBool("isSelected", (i == selectedObject));
 
             if (obj.obj->hasMaterials()) {

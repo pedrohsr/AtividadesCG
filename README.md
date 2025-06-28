@@ -144,11 +144,13 @@ O programa aceita um ou mais arquivos OBJ como argumentos:
 ### Controles
 
 **Controle de Câmera:**
+
 - **WASD**: Mover câmera
 - **Mouse**: Olhar ao redor
 - **Space/Ctrl**: Mover para cima/baixo
 
 **Controle de Objetos:**
+
 - **TAB**: Alternar entre objetos
 - **T/R/G**: Modo de translação/rotação/escala
 - **Z/X/Y**: Rotacionar objeto selecionado
@@ -156,15 +158,17 @@ O programa aceita um ou mais arquivos OBJ como argumentos:
 - **Page Up/Down**: Mover objeto para frente/trás
 - **C**: Adicionar ponto de trajetória ao objeto selecionado
 - **M**: Alternar movimento de trajetória
-- **X**: Limpar trajetória
+- **N**: Limpar trajetória
 - **I**: Alterar tipo de interpolação (Linear -> Bézier -> Spline)
 
 **Curvas Paramétricas:**
+
 - **Linear**: Linhas retas entre pontos de controle
 - **Bézier**: Curvas suaves usando todos os pontos de controle
 - **Spline**: Curvas suaves com controle local (Catmull-Rom)
 
 **Controles de Luz:**
+
 - **L**: Alternar entre luzes
 - **Numpad 4/6**: Mover luz esquerda/direita
 - **Numpad 2/8**: Mover luz baixo/cima
@@ -172,9 +176,11 @@ O programa aceita um ou mais arquivos OBJ como argumentos:
 - **Numpad +/-**: Ajustar intensidade da luz
 
 **Controles de Visualização:**
+
 - **F**: Alternar modo wireframe
 
 **Operações do Viewer:**
+
 - **F1**: Salvar configuração da cena (JSON)
 - **F2**: Carregar configuração da cena (JSON)
 - **ESC**: Sair

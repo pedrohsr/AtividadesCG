@@ -27,8 +27,10 @@ public:
 
     void translate(const glm::vec3& translation);
     void rotate(float angle, const glm::vec3& axis);
+    void setRotation(const glm::vec3& newRotation);
     void setScale(const glm::vec3& newScale);
     glm::mat4 getModelMatrix() const;
+    glm::vec3 getRotation() const;
     
     void draw() const;
 };
