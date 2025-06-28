@@ -49,9 +49,7 @@ struct SceneObject {
 std::vector<SceneObject> sceneObjects;
 int selectedObject = 0;
 
-bool addingControlPoint = false;
 bool wireframeMode = false;
-bool showTrajectories = false;
 
 enum TransformMode {
     TRANSLATE,
@@ -73,7 +71,6 @@ void processInput(GLFWwindow* window);
 void printUsage(const char* programName);
 bool loadSceneConfig(const std::string& filename);
 void saveSceneConfig(const std::string& filename);
-void renderTrajectories(Shader& shader);
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -152,16 +149,6 @@ void processInput(GLFWwindow* window) {
         fKeyPressed = false;
     }
 
-    static bool vKeyPressed = false;
-    if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS) {
-        if (!vKeyPressed) {
-            showTrajectories = !showTrajectories;
-            vKeyPressed = true;
-        }
-    } else {
-        vKeyPressed = false;
-    }
-
     if (!sceneObjects.empty() && selectedObject >= 0 && selectedObject < sceneObjects.size()) {
         SceneObject& obj = sceneObjects[selectedObject];
         float speed = 2.5f * deltaTime;
@@ -169,8 +156,9 @@ void processInput(GLFWwindow* window) {
         static bool cPressed = false;
         if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
             if (!cPressed) {
-                addingControlPoint = !addingControlPoint;
-                std::cout << (addingControlPoint ? "Adding control points" : "Stopped adding control points") << std::endl;
+                glm::mat4 modelMatrix = obj.obj->getModelMatrix();
+                glm::vec3 currentPos(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
+                obj.trajectory.addPoint(currentPos);
                 cPressed = true;
             }
         } else {
@@ -199,62 +187,37 @@ void processInput(GLFWwindow* window) {
             xPressed = false;
         }
 
-        static bool spacePressed = false;
-        if (addingControlPoint && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            if (!spacePressed) {
-                glm::mat4 modelMatrix = obj.obj->getModelMatrix();
-                glm::vec3 currentPos(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
-                obj.trajectory.addPoint(currentPos);
-                spacePressed = true;
-            }
-        } else {
-            spacePressed = false;
-        }
+        switch (currentMode) {
+            case TRANSLATE:
+                if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+                    obj.obj->translate(glm::vec3(0.0f, speed, 0.0f));
+                if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+                    obj.obj->translate(glm::vec3(0.0f, -speed, 0.0f));
+                if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+                    obj.obj->translate(glm::vec3(-speed, 0.0f, 0.0f));
+                if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+                    obj.obj->translate(glm::vec3(speed, 0.0f, 0.0f));
+                if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
+                    obj.obj->translate(glm::vec3(0.0f, 0.0f, -speed));
+                if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
+                    obj.obj->translate(glm::vec3(0.0f, 0.0f, speed));
+                break;
 
-        if (!addingControlPoint) {
-            switch (currentMode) {
-                case TRANSLATE:
-                    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-                        obj.obj->translate(glm::vec3(0.0f, speed, 0.0f));
-                    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-                        obj.obj->translate(glm::vec3(0.0f, -speed, 0.0f));
-                    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-                        obj.obj->translate(glm::vec3(-speed, 0.0f, 0.0f));
-                    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-                        obj.obj->translate(glm::vec3(speed, 0.0f, 0.0f));
-                    if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
-                        obj.obj->translate(glm::vec3(0.0f, 0.0f, -speed));
-                    if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
-                        obj.obj->translate(glm::vec3(0.0f, 0.0f, speed));
-                    break;
+            case ROTATE:
+                if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+                    obj.obj->rotate(speed * 50.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+                if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
+                    obj.obj->rotate(speed * 50.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+                if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+                    obj.obj->rotate(speed * 50.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+                break;
 
-                case ROTATE:
-                    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-                        obj.obj->rotate(speed * 50.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-                    if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
-                        obj.obj->rotate(speed * 50.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-                    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-                        obj.obj->rotate(speed * 50.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-                    break;
-
-                case SCALE:
-                    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-                        obj.obj->setScale(obj.obj->scale + glm::vec3(speed));
-                    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-                        obj.obj->setScale(obj.obj->scale - glm::vec3(speed));
-                    break;
-            }
-        }
-
-        static bool oPressed = false;
-        if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
-            if (!oPressed) {
-                obj.obj->rotate(45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-                std::cout << "Manual rotation applied to " << obj.name << std::endl;
-                oPressed = true;
-            }
-        } else {
-            oPressed = false;
+            case SCALE:
+                if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+                    obj.obj->setScale(obj.obj->scale + glm::vec3(speed));
+                if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+                    obj.obj->setScale(obj.obj->scale - glm::vec3(speed));
+                break;
         }
     }
 
@@ -318,11 +281,9 @@ void printUsage(const char* programName) {
     std::cout << "- Z/X/Y: Rotate selected object" << std::endl;
     std::cout << "- Arrow keys: Transform selected object" << std::endl;
     std::cout << "- Page Up/Down: Move object forward/backward" << std::endl;
-    std::cout << "- C: Toggle control point adding mode" << std::endl;
-    std::cout << "- SPACE: Add control point (when in adding mode)" << std::endl;
+    std::cout << "- C: Add trajectory point to selected object" << std::endl;
     std::cout << "- M: Toggle trajectory movement" << std::endl;
     std::cout << "- X: Clear trajectory" << std::endl;
-    std::cout << "- O: Test rotation (45° Y-axis)" << std::endl;
     std::cout << std::endl;
     std::cout << "Light Controls:" << std::endl;
     std::cout << "- L: Switch between lights" << std::endl;
@@ -333,9 +294,8 @@ void printUsage(const char* programName) {
     std::cout << std::endl;
     std::cout << "Display Controls:" << std::endl;
     std::cout << "- F: Toggle wireframe mode" << std::endl;
-    std::cout << "- V: Toggle trajectory visualization" << std::endl;
     std::cout << std::endl;
-    std::cout << "File Operations:" << std::endl;
+    std::cout << "Viewer Operations:" << std::endl;
     std::cout << "- F1: Save scene configuration (JSON)" << std::endl;
     std::cout << "- F2: Load scene configuration (JSON)" << std::endl;
     std::cout << "- ESC: Exit" << std::endl;
@@ -516,28 +476,6 @@ void saveSceneConfig(const std::string& filename) {
     }
 }
 
-void renderTrajectories(Shader& shader) {
-    if (!showTrajectories) return;
-
-    for (const auto& obj : sceneObjects) {
-        const auto& points = obj.trajectory.getControlPoints();
-        if (points.size() < 2) continue;
-
-        shader.setVec3("objectColor", glm::vec3(1.0f, 0.0f, 1.0f));
-        
-        for (size_t i = 0; i < points.size(); i++) {
-            glm::vec3 start = points[i];
-            glm::vec3 end = points[(i + 1) % points.size()];
-
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, start);
-            model = glm::scale(model, glm::vec3(0.1f));
-            
-            shader.setMat4("model", model);
-        }
-    }
-}
-
 int main(int argc, char* argv[]) {
     printUsage(argv[0]);
 
@@ -677,8 +615,6 @@ int main(int argc, char* argv[]) {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
         }
-
-        renderTrajectories(phongShader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

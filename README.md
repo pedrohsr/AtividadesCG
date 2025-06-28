@@ -154,11 +154,9 @@ O programa aceita um ou mais arquivos OBJ como argumentos:
 - **Z/X/Y**: Rotacionar objeto selecionado
 - **Setas**: Transformar objeto selecionado
 - **Page Up/Down**: Mover objeto para frente/trás
-- **C**: Alternar modo de adicionar pontos de controle
-- **SPACE**: Adicionar ponto de controle (quando no modo de adicionar)
+- **C**: Adicionar ponto de trajetória
 - **M**: Alternar movimento de trajetória
 - **X**: Limpar trajetória
-- **O**: Teste de rotação (45° eixo Y)
 
 **Controles de Luz:**
 - **L**: Alternar entre luzes
@@ -169,9 +167,8 @@ O programa aceita um ou mais arquivos OBJ como argumentos:
 
 **Controles de Visualização:**
 - **F**: Alternar modo wireframe
-- **V**: Alternar visualização de trajetórias
 
-**Operações de Arquivos:**
+**Operações do Viewer:**
 - **F1**: Salvar configuração da cena (JSON)
 - **F2**: Carregar configuração da cena (JSON)
 - **ESC**: Sair
