@@ -34,6 +34,15 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(stb_image)
 
+# Configura o FetchContent para baixar nlohmann/json automaticamente
+FetchContent_Declare(
+  nlohmann_json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG v3.11.2
+)
+
+FetchContent_MakeAvailable(nlohmann_json)
+
 # Adiciona as pastas de cabeçalhos
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/common)

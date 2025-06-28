@@ -1,0 +1,61 @@
+{
+  "camera": {
+    "position": [0.0, 2.0, 8.0]
+  },
+  "lights": [
+    {
+      "position": [2.0, 4.0, 6.0],
+      "color": [1.0, 1.0, 1.0],
+      "intensity": 1.0,
+      "enabled": true
+    },
+    {
+      "position": [-3.0, 3.0, 4.0],
+      "color": [0.8, 0.6, 1.0],
+      "intensity": 0.7,
+      "enabled": true
+    }
+  ],
+  "objects": [
+    {
+      "name": "cube1",
+      "file": "./assets/Modelos3D/Cube.obj",
+      "position": [-2.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0],
+      "trajectory": {
+        "points": [
+          [-2.0, 0.0, 0.0],
+          [-2.0, 2.0, 0.0],
+          [0.0, 2.0, 0.0],
+          [0.0, 0.0, 0.0]
+        ],
+        "speed": 1.5,
+        "autoStart": true
+      }
+    },
+    {
+      "name": "cube2",
+      "file": "./assets/Modelos3D/Cube.obj",
+      "position": [2.0, 0.0, 0.0],
+      "rotation": [0.0, 45.0, 0.0],
+      "scale": [1.0, 1.0, 1.0]
+    },
+    {
+      "name": "Suzanne",
+      "file": "./assets/Modelos3D/Suzanne.obj",
+      "position": [0.0, 0.0, -3.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0],
+      "trajectory": {
+        "points": [
+          [0.0, 0.0, -3.0],
+          [2.0, 0.0, -3.0],
+          [2.0, 0.0, -1.0],
+          [0.0, 0.0, -1.0]
+        ],
+        "speed": 1.5
+      }
+    }
+  ]
+} 

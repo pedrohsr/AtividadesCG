@@ -12,6 +12,7 @@ set(DOMAIN_EXECS
     ThreePointLighting
     CameraViewer
     TrajectoryViewer
+    SceneViewer
 )
 
 foreach(EXEC ${EXECS})
@@ -25,5 +26,7 @@ foreach(EXEC ${DOMAIN_EXECS})
     target_include_directories(${EXEC} PRIVATE ${CMAKE_SOURCE_DIR}/include/glad ${glm_SOURCE_DIR} ${stb_image_SOURCE_DIR} ${OPENGL_INCLUDE_DIRS})
     target_link_libraries(${EXEC} glfw ${OPENGL_LIBS} domain)
 endforeach()
+
+target_link_libraries(SceneViewer glfw ${OPENGL_LIBS} domain nlohmann_json::nlohmann_json)
 
 add_subdirectory(domain)
