@@ -1,151 +1,58 @@
 {
   "camera": {
-    "position": [
-      -1.9986470937728882,
-      2.6923184394836426,
-      10.344587326049805
-    ],
+    "position": [0.0, 5.0, 10.0],
     "yaw": -90.0,
-    "pitch": 0.0
+    "pitch": -15.0
   },
   "lights": [
     {
-      "color": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "enabled": true,
+      "position": [5.0, 8.0, 5.0],
+      "color": [1.0, 1.0, 1.0],
       "intensity": 1.0,
-      "position": [
-        2.0,
-        4.0,
-        6.0
-      ]
+      "enabled": true
     },
     {
-      "color": [
-        0.800000011920929,
-        0.6000000238418579,
-        1.0
-      ],
-      "enabled": true,
-      "intensity": 0.699999988079071,
-      "position": [
-        -3.0,
-        3.0,
-        4.0
-      ]
+      "position": [-3.0, 6.0, 3.0],
+      "color": [0.8, 0.6, 1.0],
+      "intensity": 0.7,
+      "enabled": true
     }
   ],
   "objects": [
     {
-      "file": "./assets/Modelos3D/Cube.obj",
       "name": "cube1",
-      "position": [
-        -4.431668281555176,
-        -0.17077040672302246,
-        0.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
+      "file": "assets/Modelos3D/Cube.obj",
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0],
       "trajectory": {
-        "autoStart": false,
         "points": [
-          [
-            -2.0,
-            0.0,
-            0.0
-          ],
-          [
-            -2.0,
-            2.0,
-            0.0
-          ],
-          [
-            0.0,
-            2.0,
-            0.0
-          ],
-          [
-            0.0,
-            0.0,
-            0.0
-          ]
+          [0.0, 0.0, 0.0],
+          [3.0, 2.0, 1.0],
+          [6.0, 0.0, 2.0],
+          [3.0, -2.0, 1.0],
+          [0.0, 0.0, 0.0]
         ],
-        "speed": 1.5
+        "speed": 1.0,
+        "autoStart": false
       }
     },
     {
-      "file": "./assets/Modelos3D/Cube.obj",
-      "name": "cube2",
-      "position": [
-        4.5139570236206055,
-        0.0,
-        0.0
-      ],
-      "rotation": [
-        0.0,
-        45.0,
-        0.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ]
-    },
-    {
-      "file": "./assets/Modelos3D/Suzanne.obj",
-      "name": "Suzanne",
-      "position": [
-        0.0,
-        0.011708736419677734,
-        -4.756877899169922
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
+      "name": "suzanne1",
+      "file": "assets/Modelos3D/Suzanne.obj",
+      "position": [-4.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [0.5, 0.5, 0.5],
       "trajectory": {
-        "autoStart": false,
         "points": [
-          [
-            0.0,
-            0.0,
-            -3.0
-          ],
-          [
-            2.0,
-            0.0,
-            -3.0
-          ],
-          [
-            2.0,
-            0.0,
-            -1.0
-          ],
-          [
-            0.0,
-            0.0,
-            -1.0
-          ]
+          [-4.0, 0.0, 0.0],
+          [-2.0, 3.0, 2.0],
+          [0.0, 0.0, 4.0],
+          [2.0, -3.0, 2.0],
+          [-4.0, 0.0, 0.0]
         ],
-        "speed": 1.5
+        "speed": 0.8,
+        "autoStart": false
       }
     }
   ]

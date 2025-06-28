@@ -154,9 +154,15 @@ O programa aceita um ou mais arquivos OBJ como argumentos:
 - **Z/X/Y**: Rotacionar objeto selecionado
 - **Setas**: Transformar objeto selecionado
 - **Page Up/Down**: Mover objeto para frente/trás
-- **C**: Adicionar ponto de trajetória
+- **C**: Adicionar ponto de trajetória ao objeto selecionado
 - **M**: Alternar movimento de trajetória
 - **X**: Limpar trajetória
+- **I**: Alterar tipo de interpolação (Linear -> Bézier -> Spline)
+
+**Curvas Paramétricas:**
+- **Linear**: Linhas retas entre pontos de controle
+- **Bézier**: Curvas suaves usando todos os pontos de controle
+- **Spline**: Curvas suaves com controle local (Catmull-Rom)
 
 **Controles de Luz:**
 - **L**: Alternar entre luzes

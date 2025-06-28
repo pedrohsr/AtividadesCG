@@ -187,6 +187,30 @@ void processInput(GLFWwindow* window) {
             xPressed = false;
         }
 
+        static bool iPressed = false;
+        if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
+            if (!iPressed) {
+                InterpolationType currentType = obj.trajectory.getInterpolationType();
+                InterpolationType newType;
+                switch (currentType) {
+                    case InterpolationType::LINEAR:
+                        newType = InterpolationType::BEZIER;
+                        break;
+                    case InterpolationType::BEZIER:
+                        newType = InterpolationType::SPLINE;
+                        break;
+                    case InterpolationType::SPLINE:
+                        newType = InterpolationType::LINEAR;
+                        break;
+                }
+                obj.trajectory.setInterpolationType(newType);
+                std::cout << "Changed interpolation type for " << obj.name << std::endl;
+                iPressed = true;
+            }
+        } else {
+            iPressed = false;
+        }
+
         switch (currentMode) {
             case TRANSLATE:
                 if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
@@ -268,7 +292,7 @@ void processInput(GLFWwindow* window) {
 void printUsage(const char* programName) {
     std::cout << "=== SCENE VIEWER - Complete 3D Scene Visualization ===" << std::endl;
     std::cout << "Usage: " << programName << " [scene_config.json]" << std::endl;
-    std::cout << "Features: Multiple OBJ loading, Phong lighting, trajectories, JSON scene config" << std::endl;
+    std::cout << "Features: Multiple OBJ loading, Phong lighting, parametric curves, JSON scene config" << std::endl;
     std::cout << std::endl;
     std::cout << "Camera Controls:" << std::endl;
     std::cout << "- WASD: Move camera" << std::endl;
@@ -284,6 +308,12 @@ void printUsage(const char* programName) {
     std::cout << "- C: Add trajectory point to selected object" << std::endl;
     std::cout << "- M: Toggle trajectory movement" << std::endl;
     std::cout << "- X: Clear trajectory" << std::endl;
+    std::cout << "- I: Change interpolation type (Linear -> Bezier -> Spline)" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Parametric Curves:" << std::endl;
+    std::cout << "- Linear: Straight lines between control points" << std::endl;
+    std::cout << "- Bezier: Smooth curves using all control points" << std::endl;
+    std::cout << "- Spline: Smooth curves with local control (Catmull-Rom)" << std::endl;
     std::cout << std::endl;
     std::cout << "Light Controls:" << std::endl;
     std::cout << "- L: Switch between lights" << std::endl;
