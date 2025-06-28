@@ -87,11 +87,13 @@ bool TexturedObj::loadTexturedOBJ(const std::string &path)
         }
         else if (prefix == "f")
         {
-            Face face;
-            face.material = currentMaterial;
-
-            std::string vertex1, vertex2, vertex3;
+            std::string vertex1, vertex2, vertex3, vertex4;
             ss >> vertex1 >> vertex2 >> vertex3;
+            
+            bool isQuad = false;
+            if (ss >> vertex4) {
+                isQuad = true;
+            }
 
             auto parseVertex = [](const std::string &vertexStr, unsigned int &v, unsigned int &vt, unsigned int &vn)
             {
@@ -104,11 +106,21 @@ bool TexturedObj::loadTexturedOBJ(const std::string &path)
                 vn--;
             };
 
-            parseVertex(vertex1, face.v1, face.vt1, face.vn1);
-            parseVertex(vertex2, face.v2, face.vt2, face.vn2);
-            parseVertex(vertex3, face.v3, face.vt3, face.vn3);
+            Face face1;
+            face1.material = currentMaterial;
+            parseVertex(vertex1, face1.v1, face1.vt1, face1.vn1);
+            parseVertex(vertex2, face1.v2, face1.vt2, face1.vn2);
+            parseVertex(vertex3, face1.v3, face1.vt3, face1.vn3);
+            faces.push_back(face1);
 
-            faces.push_back(face);
+            if (isQuad) {
+                Face face2;
+                face2.material = currentMaterial;
+                parseVertex(vertex1, face2.v1, face2.vt1, face2.vn1);
+                parseVertex(vertex3, face2.v2, face2.vt2, face2.vn2);
+                parseVertex(vertex4, face2.v3, face2.vt3, face2.vn3);
+                faces.push_back(face2);
+            }
         }
     }
 

@@ -53,12 +53,16 @@ bool Obj::loadFromFile(const std::string& filename) {
             temp_normals.push_back(normal);
         }
         else if (type == "f") {
-            std::string vertex1, vertex2, vertex3;
+            std::string vertex1, vertex2, vertex3, vertex4;
             iss >> vertex1 >> vertex2 >> vertex3;
+            
+            bool isQuad = false;
+            if (iss >> vertex4) {
+                isQuad = true;
+            }
 
-            std::string vertices[3] = {vertex1, vertex2, vertex3};
-            for (const auto& vertex : vertices) {
-                std::istringstream ss(vertex);
+            auto processVertex = [&](const std::string& vertexStr) {
+                std::istringstream ss(vertexStr);
                 std::string index;
                 int vi = 0, ni = 0;
 
@@ -79,6 +83,16 @@ bool Obj::loadFromFile(const std::string& filename) {
                 vBuffer.push_back(temp_normals[ni].x);
                 vBuffer.push_back(temp_normals[ni].y);
                 vBuffer.push_back(temp_normals[ni].z);
+            };
+
+            processVertex(vertex1);
+            processVertex(vertex2);
+            processVertex(vertex3);
+
+            if (isQuad) {
+                processVertex(vertex1);
+                processVertex(vertex3);
+                processVertex(vertex4);
             }
         }
     }
