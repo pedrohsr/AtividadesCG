@@ -211,6 +211,44 @@ void processInput(GLFWwindow* window) {
             iPressed = false;
         }
 
+        static bool oPressed = false;
+        if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+            if (!oPressed) {
+                InterpolationType currentType = obj.trajectory.getInterpolationType();
+                std::string typeName;
+                switch (currentType) {
+                    case InterpolationType::LINEAR:
+                        typeName = "LINEAR";
+                        break;
+                    case InterpolationType::BEZIER:
+                        typeName = "BEZIER";
+                        break;
+                    case InterpolationType::SPLINE:
+                        typeName = "SPLINE";
+                        break;
+                }
+                std::cout << "Object " << obj.name << " interpolation type: " << typeName 
+                          << " (Speed: " << obj.trajectory.getSpeed() << ")" << std::endl;
+                oPressed = true;
+            }
+        } else {
+            oPressed = false;
+        }
+
+        static bool pPressed = false;
+        if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+            if (!pPressed) {
+                float currentSpeed = obj.trajectory.getSpeed();
+                float newSpeed = currentSpeed + 0.5f;
+                if (newSpeed > 5.0f) newSpeed = 0.5f;
+                obj.trajectory.setSpeed(newSpeed);
+                std::cout << "Changed trajectory speed for " << obj.name << " to: " << newSpeed << std::endl;
+                pPressed = true;
+            }
+        } else {
+            pPressed = false;
+        }
+
         switch (currentMode) {
             case TRANSLATE:
                 if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
@@ -238,9 +276,12 @@ void processInput(GLFWwindow* window) {
 
             case SCALE:
                 if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-                    obj.obj->setScale(obj.obj->scale + glm::vec3(speed));
-                if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-                    obj.obj->setScale(obj.obj->scale - glm::vec3(speed));
+                    obj.obj->setScale(obj.obj->scale + glm::vec3(speed * 0.1f));
+                if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+                    glm::vec3 newScale = obj.obj->scale - glm::vec3(speed * 0.1f);
+                    newScale = glm::max(newScale, glm::vec3(0.01f)); // Minimum scale of 0.01
+                    obj.obj->setScale(newScale);
+                }
                 break;
         }
     }
@@ -309,11 +350,16 @@ void printUsage(const char* programName) {
     std::cout << "- M: Toggle trajectory movement" << std::endl;
     std::cout << "- N: Clear trajectory" << std::endl;
     std::cout << "- I: Change interpolation type (Linear -> Bezier -> Spline)" << std::endl;
+    std::cout << "- O: Display current interpolation type and speed" << std::endl;
+    std::cout << "- P: Cycle trajectory speed (0.5 -> 1.0 -> 1.5 -> ... -> 5.0)" << std::endl;
     std::cout << std::endl;
     std::cout << "Parametric Curves:" << std::endl;
     std::cout << "- Linear: Straight lines between control points" << std::endl;
     std::cout << "- Bezier: Smooth curves using all control points" << std::endl;
     std::cout << "- Spline: Smooth curves with local control (Catmull-Rom)" << std::endl;
+    std::cout << "  * Linear: Best for simple paths, predictable movement" << std::endl;
+    std::cout << "  * Bezier: Best for smooth, organic curves" << std::endl;
+    std::cout << "  * Spline: Best for complex paths with local control" << std::endl;
     std::cout << std::endl;
     std::cout << "Light Controls:" << std::endl;
     std::cout << "- L: Switch between lights" << std::endl;
@@ -421,6 +467,16 @@ bool loadSceneConfig(const std::string& filename) {
                         if (trajData.contains("autoStart")) {
                             sceneObj.isMoving = trajData["autoStart"];
                         }
+                        if (trajData.contains("interpolationType")) {
+                            std::string interpType = trajData["interpolationType"];
+                            if (interpType == "LINEAR") {
+                                sceneObj.trajectory.setInterpolationType(InterpolationType::LINEAR);
+                            } else if (interpType == "BEZIER") {
+                                sceneObj.trajectory.setInterpolationType(InterpolationType::BEZIER);
+                            } else if (interpType == "SPLINE") {
+                                sceneObj.trajectory.setInterpolationType(InterpolationType::SPLINE);
+                            }
+                        }
                     }
                     
                     sceneObjects.push_back(sceneObj);
@@ -480,6 +536,8 @@ void saveSceneConfig(const std::string& filename) {
                 }
                 trajData["speed"] = obj.trajectory.getSpeed();
                 trajData["autoStart"] = obj.isMoving;
+                trajData["interpolationType"] = obj.trajectory.getInterpolationType() == InterpolationType::LINEAR ? "LINEAR" :
+                    obj.trajectory.getInterpolationType() == InterpolationType::BEZIER ? "BEZIER" : "SPLINE";
                 objData["trajectory"] = trajData;
             }
 
