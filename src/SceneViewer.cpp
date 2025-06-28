@@ -325,8 +325,10 @@ bool loadSceneConfig(const std::string& filename) {
         if (sceneData.contains("camera")) {
             auto cam = sceneData["camera"];
             glm::vec3 pos(cam["position"][0], cam["position"][1], cam["position"][2]);
-            camera = Camera(pos);
-            std::cout << "Set camera position to (" << pos.x << ", " << pos.y << ", " << pos.z << ")" << std::endl;
+            float yaw = cam.value("yaw", -90.0f);
+            float pitch = cam.value("pitch", 0.0f);
+            camera = Camera(pos, glm::vec3(0.0f, 1.0f, 0.0f), yaw, pitch);
+            std::cout << "Set camera position to (" << pos.x << ", " << pos.y << ", " << pos.z << ") with yaw=" << yaw << ", pitch=" << pitch << std::endl;
         }
 
         if (sceneData.contains("lights")) {
@@ -422,6 +424,8 @@ void saveSceneConfig(const std::string& filename) {
 
         glm::vec3 camPos = camera.GetPosition();
         sceneData["camera"]["position"] = {camPos.x, camPos.y, camPos.z};
+        sceneData["camera"]["yaw"] = camera.GetYaw();
+        sceneData["camera"]["pitch"] = camera.GetPitch();
 
         sceneData["lights"] = json::array();
         for (const auto& light : lights) {
