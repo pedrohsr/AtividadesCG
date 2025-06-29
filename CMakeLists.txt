@@ -50,7 +50,9 @@ include_directories(${CMAKE_SOURCE_DIR}/include/glad)
 include_directories(${glm_SOURCE_DIR})
 include_directories(${stb_image_SOURCE_DIR})
 
-add_compile_options(-Wno-pragmas)
+if(NOT MSVC)
+    add_compile_options(-Wno-pragmas)
+endif()
 
 # Define as bibliotecas para cada sistema operacional
 if(WIN32)
